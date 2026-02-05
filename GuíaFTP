@@ -1,0 +1,38 @@
+Este script sí es el adecuado para el servicio FTP, ya que instala y configura vsftpd. Sin embargo, si en el examen te dan una tabla de datos como la que mostraste anteriormente (con nombres específicos de servidor, IPs y dominios), tendrás que hacer algunos ajustes para que coincida exactamente con lo que pide el enunciado.
+
+Aquí tienes lo que debes tener en cuenta para el examen basándote en este script:
+
+1. Puntos fuertes del script (Lo que ya está bien)
+Gestión de Usuarios: Crea los usuarios y les asigna contraseñas de forma automática.
+
+Seguridad Chroot: Configura chroot_local_user=YES, lo que impide que los usuarios naveguen por carpetas del sistema fuera de su carpeta personal.
+
+Modo Pasivo: Define puertos específicos (10000-10100), lo cual es vital si hay un firewall de por medio.
+
+2. Qué te podrían pedir cambiar (Adaptación al examen)
+Si el profesor te entrega una tabla como la de tus imágenes, fíjate en estos detalles:
+
+Rutas de los Directorios:
+
+Tu script usa /home/$USER/ftp.
+
+Si la tabla dice que el directorio raíz es /var/www/appintranet, deberás cambiar la variable local_root en el archivo de configuración y asegurarte de que los permisos de carpeta sean correctos para ese nuevo camino.
+
+Nombres de Usuario:
+
+Tu script usa usuariolectura y usuarioescritura.
+
+Si la tabla pide Usuari01, Usuari02, etc., deberás actualizar las variables USER_LECTURA y USER_ESCRITURA al principio del script.
+
+Logs:
+
+La tabla de ejemplo pide que los logs se guarden en una ruta específica (ej: /var/www/appintranet/logs).
+
+Tendrías que añadir al bloque cat <<EOF la línea: xferlog_file=/var/www/appintranet/logs/vsftpd.log.
+
+3. Diferencia clave para el examen
+No olvides que este script es para transferencia de archivos, mientras que el anterior que pusiste era para páginas web (Apache).
+
+Usa este script si el enunciado dice: "Configurar un servidor de transferencia de archivos" o "Servicio FTP".
+
+Usa el otro script si el enunciado dice: "Configurar un servidor web", "HTTP" o "HTTPS".
