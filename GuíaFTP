@@ -1,3 +1,5 @@
+sudo nano /etc/vsftpd.conf
+
 Este script sí es el adecuado para el servicio FTP, ya que instala y configura vsftpd. Sin embargo, si en el examen te dan una tabla de datos como la que mostraste anteriormente (con nombres específicos de servidor, IPs y dominios), tendrás que hacer algunos ajustes para que coincida exactamente con lo que pide el enunciado.
 
 Aquí tienes lo que debes tener en cuenta para el examen basándote en este script:
