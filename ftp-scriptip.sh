@@ -94,4 +94,4 @@ sudo ufw allow 21/tcp
 sudo ufw allow 10000:10100/tcp
 sudo systemctl restart vsftpd
 
-echo "✅ FTP configurat a la nova IP $IP_SERVIDOR"
+echo "FTP configurat a la IP $IP_SERVIDOR"
