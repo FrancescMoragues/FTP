@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# 1. Instalación del servicio
+echo "Instalando vsftpd..."
+sudo apt-get update
+sudo apt-get install -y vsftpd
+
+# 2. Creación de usuarios (con una contraseña genérica 'password123')
+echo "Creando usuarios: arwen, saruman, radagast, eowyn..."
+for user in arwen saruman radagast eowyn; do
+    sudo adduser --disabled-password --gecos "" $user
+    echo "$user:password123" | sudo chpasswd
+done
+
+# 3. Creación de directorios y permisos iniciales
+echo "Configurando directorios..."
+sudo mkdir -p /var/isengard/anonim
+sudo chown ftp:ftp /var/isengard/anonim
+sudo chmod 755 /var/isengard/anonim
+
+# 4. Configuración del archivo vsftpd.conf
+# Hacemos una copia de seguridad primero
+sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.bak
+
+echo "Escribiendo configuración en /etc/vsftpd.conf..."
+sudo cat <<EOF > /etc/vsftpd.conf
+listen=YES
+listen_ipv6=NO
+local_enable=YES
+write_enable=YES
+chroot_local_user=NO
+allow_writeable_chroot=YES
+
+anonymous_enable=YES
+no_anon_password=YES
+anon_root=/var/isengard/anonim
+anon_world_readable_only=YES
+EOF
+
+# 5. Gestión de grupos y permisos de escritura (Segunda Imagen)
+echo "Configurando grupo de editores..."
+sudo groupadd editors_ftp
+sudo usermod -aG editors_ftp arwen
+sudo usermod -aG editors_ftp saruman
+
+# Asignar grupo a la carpeta y dar permiso 775 (lectura/escritura para el grupo)
+sudo chgrp editors_ftp /var/isengard/anonim
+sudo chmod 775 /var/isengard/anonim
+
+# 6. Reiniciar servicio para aplicar cambios
+echo "Reiniciando el servicio FTP..."
+sudo systemctl restart vsftpd
+
+echo "¡Listo! El servidor FTP está configurado según tus capturas."
