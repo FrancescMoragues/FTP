@@ -1,54 +1,52 @@
-#!/bin/bash
-
-# 1. Instalación del servicio
-echo "Instalando vsftpd..."
-sudo apt-get update
-sudo apt-get install -y vsftpd
-
-# 2. Creación de usuarios (con una contraseña genérica 'password123')
-echo "Creando usuarios: arwen, saruman, radagast, eowyn..."
-for user in arwen saruman radagast eowyn; do
-    sudo adduser --disabled-password --gecos "" $user
-    echo "$user:password123" | sudo chpasswd
+for user in nathandrake donkeykong laracroft bowser; do
+    useradd -m -s /bin/bash $user
+    echo "$user:12345678" | chpasswd
 done
 
-# 3. Creación de directorios y permisos iniciales
-echo "Configurando directorios..."
-sudo mkdir -p /var/isengard/anonim
-sudo chown ftp:ftp /var/isengard/anonim
-sudo chmod 755 /var/isengard/anonim
+mkdir -p /srv/skoda/documents
+mkdir -p /srv/skoda/backup
 
-# 4. Configuración del archivo vsftpd.conf
-# Hacemos una copia de seguridad primero
-sudo cp /etc/vsftpd.conf /etc/vsftpd.conf.bak
+chown nobody:nogroup /srv/skoda/documents
+chmod 755 /srv/skoda/documents
 
-echo "Escribiendo configuración en /etc/vsftpd.conf..."
-sudo cat <<EOF > /etc/vsftpd.conf
-listen=YES
-listen_ipv6=NO
+chgrp users /srv/skoda/documents /srv/skoda/backup
+chmod 775 /srv/skoda/documents /srv/skoda/backup
+usermod -aG users laracroft
+usermod -aG users bowser
+
+
+nano /etc/vsftpd.conf
+
+# Configuración Básica
+listen=NO
+listen_ipv6=YES
+anonymous_enable=YES
 local_enable=YES
 write_enable=YES
-chroot_local_user=NO
+local_umask=022
+
+chroot_local_user=YES
 allow_writeable_chroot=YES
 
-anonymous_enable=YES
+chroot_list_enable=YES
+chroot_list_file=/etc/vsftpd.chroot_list
+
+anon_root=/srv/skoda/documents
 no_anon_password=YES
-anon_root=/var/isengard/anonim
-anon_world_readable_only=YES
-EOF
+hide_ids=YES
 
-# 5. Gestión de grupos y permisos de escritura (Segunda Imagen)
-echo "Configurando grupo de editores..."
-sudo groupadd editors_ftp
-sudo usermod -aG editors_ftp arwen
-sudo usermod -aG editors_ftp saruman
+Crea el archivo de excepciones:
+nano /etc/vsftpd.chroot_list
 
-# Asignar grupo a la carpeta y dar permiso 775 (lectura/escritura para el grupo)
-sudo chgrp editors_ftp /var/isengard/anonim
-sudo chmod 775 /var/isengard/anonim
+Y añade los nombres de los usuarios que no estarán engabiados:
+laracroft
+bowser
 
-# 6. Reiniciar servicio para aplicar cambios
-echo "Reiniciando el servicio FTP..."
-sudo systemctl restart vsftpd
 
-echo "¡Listo! El servidor FTP está configurado según tus capturas."
+ln -s /srv/skoda/documents /home/laracroft/documents
+ln -s /srv/skoda/backup /home/laracroft/backup
+ln -s /srv/skoda/documents /home/bowser/documents
+ln -s /srv/skoda/backup /home/bowser/backup
+
+
+systemctl restart vsftpd
